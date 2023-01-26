@@ -1,3 +1,0 @@
-[ResponseResult]
-ResultCode=0
-111 изменение
