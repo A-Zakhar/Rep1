@@ -1,0 +1,21 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% block title %}
+Новость
+{% endblock title %}
+
+<!-- В контенте на странице мы выводим сам товар, идентификатор которого был передан в url -->
+{% block content %}
+   {% if post.news_or_article %}
+      <h3>Новость</h3>
+   {% else %}
+      <h3>Статья</h3>
+   {% endif %}
+   <hr>
+   <h3><p align="left">Заголовок: {{ post.heading|censor }}</p></h3>
+   <h3><p align="left">Дата публикации: {{ post.datetime|date:'d M Y' }}</p></h3>
+   <h4><p align="left">Текст: {{ post.text|censor }}</p></h4>
+{% endblock content %}
