@@ -1,0 +1,97 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% load custom_tags %}
+
+{% block title %}
+Новости
+{% endblock title %}
+
+{% block content %}
+   {% if news_articles == False %}
+       <h3>Статьи</h3>
+   {% elif news_articles == True %}
+       <h3>Новости</h3>
+   {% else %}
+       <h3>Все новости</h3>
+   {% endif %}
+
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form.as_p }}
+       {# Добавим кнопку отправки данных формы #}
+       <input type="submit" value="Найти" />
+   </form>
+
+   <hr>
+   {% if posts %}
+       <table>
+           <tr>
+               <td><h4>&emsp;Заголовок&emsp;</h4></td>
+               <td><h4>&emsp;&emsp;&emsp;Дата&emsp;&emsp;&emsp;</h4></td>
+               <td><h4>Текст</h4></td>
+               <td><h4>Тип публикации</h4></td>
+           </tr>
+
+           {% for post in posts %}
+           <tr>
+               {% if news_articles == True %}
+                   {% if post.news_or_article %}
+                       <td><h5>{{ post.heading|censor|truncatechars:15 }}</h5></td>
+                       <td><h5>{{ post.datetime|date:'d M Y' }}</h5></td>
+                       <td><h5>{{ post.text|censor|truncatewords:20 }}</h5></td>
+                       <td><h5>{{ new }}</h5></td>
+                   {% endif %}
+               {% elif news_articles == False %}
+                   {% if not post.news_or_article %}
+                       <td><h5>{{ post.heading|censor|truncatechars:15 }}</h5></td>
+                       <td><h5>{{ post.datetime|date:'d M Y' }}</h5></td>
+                       <td><h5>{{ post.text|censor|truncatewords:20 }}</h5></td>
+                       <td><h5>{{ article }}</h5></td>
+                   {% endif %}
+               {% else %}
+                   <td><h5>{{ post.heading|censor|truncatechars:15 }}</h5></td>
+                   <td><h5>{{ post.datetime|date:'d M Y' }}</h5></td>
+                   <td><h5>{{ post.text|censor|truncatewords:20 }}</h5></td>
+                   {% if post.news_or_article %}
+                       <td><h5>{{ new }}</h5></td>
+                   {% else %}
+                       <td><h5>{{ article }}</h5></td>
+                   {% endif %}
+               {% endif %}
+               <!-- <td>{{ post.author.user.username }}</td> -->
+           </tr>
+           {% endfor %}
+
+       </table>
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+
+   {# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+{% endblock content %}
