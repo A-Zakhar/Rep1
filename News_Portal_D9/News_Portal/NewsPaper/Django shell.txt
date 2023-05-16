@@ -1,0 +1,88 @@
+from news.models import *
+
+user1 = User.objects.create_user('user1')
+user2 = User.objects.create_user('user2')
+
+Author.objects.create(user=user1)
+Author.objects.create(user=user2)
+
+Category.objects.create(name='Спорт')
+Category.objects.create(name='Наука')
+Category.objects.create(name='Экономика')
+Category.objects.create(name='Культура')
+
+Post.objects.create(author_id=1, heading='Новость1', text='Текст новости 1')
+Post.objects.create(author_id=1, news_or_article=False, heading='Статья1', text='Текст статьи 1')
+Post.objects.create(author_id=2, news_or_article=False, heading='Статья2', text='Текст статьи 2')
+
+PostCategory.objects.create(post_id=2, category_id=2)
+PostCategory.objects.create(post_id=2, category_id=3)
+PostCategory.objects.create(post_id=3, category_id=1)
+PostCategory.objects.create(post_id=4, category_id=4)
+
+Comment.objects.create(post_id=2, user_id=1, text='Комментарий к новости 1 пользователя 1')
+Comment.objects.create(post_id=2, user_id=2, text='Комментарий к новости 1 пользователя 2')
+Comment.objects.create(post_id=3, user_id=1, text='Комментарий к статье 1 пользователя 1')
+Comment.objects.create(post_id=4, user_id=2, text='Комментарий к статье 2 пользователя 2')
+
+post = Post.objects.get(pk=2)
+post.like()
+post.like()
+post.like()
+post.dislike()
+
+post = Post.objects.get(pk=3)
+post.like()
+post.like()
+post.like()
+
+post = Post.objects.get(pk=4)
+post.like()
+post.like()
+post.dislike()
+
+comment = Comment.objects.get(pk=1)
+comment.like()
+
+comment = Comment.objects.get(pk=2)
+comment.dislike()
+
+comment = Comment.objects.get(pk=3)
+comment.like()
+comment.like()
+
+comment = Comment.objects.get(pk=4)
+comment.like()
+comment.like()
+comment.like()
+
+author = Author.objects.get(pk=1)
+
+author.update_rating()
+
+
+author = Author.objects.get(pk=2)
+
+author.update_rating()
+
+a = Author.objects.all().order_by('-rating').first()
+'Пользователь ' + User.objects.get(pk=a.user_id).username + '  Рейтинг ' + str(a.rating)
+
+p = Post.objects.filter(news_or_article=False).order_by('-rating').first()
+'Дата добавления ' + str(p.datetime.day) + '.' + str(p.datetime.month) + '.' + str(p.datetime.year)
+'username автора: ' + User.objects.get(pk=p.author_id).username
+'Рейтинг статьи: ' + str(p.rating) + '  Заголовок: ' + p.heading + '  Превью: ' + p.preview()
+
+comments = Comment.objects.filter(post_id=p.id)
+for c in comments:
+    d = 'Дата комментария: ' + str(c.datetime.day) + '.' + str(c.datetime.month) + '.' + str(c.datetime.year)
+    u = '  Пользователь: ' + User.objects.get(pk=c.user_id).username
+    r = '  Рейтинг комментария: ' + str(c.rating)
+    t = '  Текст комментария: ' + c.text
+    d + u + r + t
+    
+    
+
+
+
+

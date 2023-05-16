@@ -1,0 +1,108 @@
+<!--  наследуемся от шаблона default.html, который мы создавали для flatpages -->
+{% extends 'flatpages/default.html' %}
+
+{% load custom_filters %}
+
+{% load custom_tags %}
+
+{% block title %}
+Новости
+{% endblock title %}
+
+{% block content %}
+   {% if news_articles == False %}
+       <h3>Статьи</h3>
+   {% elif news_articles == True %}
+       <h3>Новости</h3>
+   {% else %}
+       <h3>Все новости  ({{ page_obj.paginator.count }})</h3>
+   {% endif %}
+
+   {# Добавляем форму, которая объединяет набор полей, которые будут отправляться в запросе #}
+   <form action="" method="get">
+       {# Переменная, которую мы передали через контекст, может сгенерировать нам форму с полями #}
+       {{ filterset.form }}  {# {{ filterset.form.as_p }} #}
+       {# Добавим кнопку отправки данных формы #}
+       &nbsp;&nbsp;&nbsp;<input type="submit" value="Найти" />
+   </form>
+
+   <hr>
+   {% if posts %}
+       <ul class="list-group list-group flush" align="left">
+           {% for post in posts %}
+               <li class="list-group-item">
+               {% if news_articles == True %}
+                   {% if post.news_or_article %}
+                       <small class="fw-bold">{{ post.datetime|date:'d M Y' }}&nbsp; </small>
+                       {{ new }}:&nbsp;
+                       <a href="{% url 'post_detail' post.id %}">{{ post.heading|censor|truncatechars:150 }}</a>
+                       <small class="text-muted ">(автор: {{ post.author }})</small> <br>
+                       <small class="fw-bold">категории:
+                       {% for category in post.category.all %}
+                           <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                       {% endfor %}
+                       </small>
+                       <p>{{ post.text|censor|truncatechars:210 }}</p>
+                   {% endif %}
+               {% elif news_articles == False %}
+                   {% if not post.news_or_article %}
+                       <small class="fw-bold">{{ post.datetime|date:'d M Y' }}&nbsp; </small>
+                       {{ article }}:&nbsp;
+                       <a href="{% url 'post_detail' post.id %}">{{ post.heading|censor|truncatechars:150 }}</a>
+                       <small class="text-muted ">(автор: {{ post.author }})</small> <br>
+                       <small class="fw-bold">категории:
+                       {% for category in post.category.all %}
+                           <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                       {% endfor %}
+                       </small>
+                       <p>{{ post.text|censor|truncatechars:210 }}</p>
+                   {% endif %}
+               {% else %}
+                   <small class="fw-bold">{{ post.datetime|date:'d M Y' }}&nbsp; </small>
+                   {% if post.news_or_article %}
+                       {{ new }}:&nbsp;
+                   {% else %}
+                       {{ article }}:&nbsp;
+                   {% endif %}
+                   <a href="{% url 'post_detail' post.id %}">{{ post.heading|censor|truncatechars:150 }}</a>
+                   <small class="text-muted ">(автор: {{ post.author }})</small> <br>
+                   <small class="fw-bold">категории:
+                   {% for category in post.category.all %}
+                       <a href="{% url 'category_list' category.id %}">{{ category }}</a>
+                   {% endfor %}
+                   </small>
+                   <p>{{ post.text|censor|truncatechars:210 }}</p>
+               {% endif %}
+               <!-- <td>{{ post.author.user.username }}</td> -->
+               </li>
+           {% endfor %}
+       </ul>
+
+   {% else %}
+       <h2>Новостей нет!</h2>
+   {% endif %}
+
+   {# Добавляем пагинацию на страницу #}
+
+   {# Информация о предыдущих страницах #}
+   {% if page_obj.has_previous %}
+       <a href="?{% url_replace page=1 %}">1</a>
+       {% if page_obj.previous_page_number != 1 %}
+           ...
+           <a href="?{% url_replace page=page_obj.previous_page_number %}">{{ page_obj.previous_page_number }}</a>
+       {% endif %}
+   {% endif %}
+
+   {# Информация о текущей странице #}
+   {{ page_obj.number }}
+
+   {# Информация о следующих страницах #}
+   {% if page_obj.has_next %}
+       <a href="?{% url_replace page=page_obj.next_page_number %}">{{ page_obj.next_page_number }}</a>
+       {% if paginator.num_pages != page_obj.next_page_number %}
+           ...
+           <a href="?{% url_replace page=page_obj.paginator.num_pages %}">{{ page_obj.paginator.num_pages }}</a>
+       {% endif %}
+   {% endif %}
+
+{% endblock content %}
