@@ -1,0 +1,12 @@
+{% extends 'flatpages/default.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<h1>Удаление поста</h1>
+<hr>
+<form action="" method="post">
+    {% csrf_token %}
+    <p>Удаляем "{{ object.heading|censor|truncatechars:15 }}"?</p>
+    <input type="submit" value="Delete" />
+</form>
+{% endblock content %}
